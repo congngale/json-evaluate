@@ -1,0 +1,9 @@
+[submodule "json-c/json-c"]
+	path = json-c/json-c
+	url = https://github.com/json-c/json-c.git
+[submodule "rapidjson/rapidjson"]
+	path = rapidjson/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "taocpp/json"]
+	path = taocpp/json
+	url = https://github.com/taocpp/json.git
