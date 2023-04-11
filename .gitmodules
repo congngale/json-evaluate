@@ -10,3 +10,6 @@
 [submodule "nlohmann/json"]
 	path = nlohmann/json
 	url = https://github.com/nlohmann/json.git
+[submodule "yyjson/yyjson"]
+	path = yyjson/yyjson
+	url = https://github.com/ibireme/yyjson.git

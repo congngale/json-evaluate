@@ -5,7 +5,7 @@
 #
 
 # app name
-PROGRAM = rapidjson-app
+PROGRAM = yyjson-app
 
 # MAC OS temp files
 MAC_TEMP_FILES = $(shell find ./ -type f -name '._*')
@@ -22,21 +22,29 @@ OBJECTS = $(patsubst %.cc,%.o,$(SOURCES))
 # include inc folders
 INCLUDE_DIR = inc
 
-# json-c lib dir
-RAPID_JSON_LIB_DIR = rapidjson/include
+# yyjson lib dir
+YYJSON_LIB_DIR = yyjson/src
 
 # compile flags
 COMPILE_FLAGS = -O2 -std=c++11 -Wall -Wextra -Werror
 
+# link flags
+LDFLAGS = -L./yyjson/build -lyyjson
+
 # include -I
-CPPFLAGS = -I$(RAPID_JSON_LIB_DIR)
+CPPFLAGS = -I$(YYJSON_LIB_DIR)
 
 .PHONY: $(PROGRAM) lib clean
 
 all: lib $(PROGRAM)
 
 $(PROGRAM): $(OBJECTS)
-	$(CXX) $(CPPFLAGS) $(OBJECTS) -o $(PROGRAM) $(COMPILE_FLAGS)
+	$(CXX) $(CPPFLAGS) $(OBJECTS) -o $(PROGRAM) $(LDFLAGS) $(COMPILE_FLAGS)
+
+lib:
+	rm -rf ./yyjson/build 
+	mkdir ./yyjson/build
+	cd ./yyjson/build && cmake .. && make && cd -
 
 clean:
 	@- $(RM) $(PROGRAM)
