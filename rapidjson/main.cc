@@ -1,3 +1,4 @@
+#include "rapidjson/writer.h"
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <unistd.h>
@@ -10,6 +11,7 @@
 
 // define data
 constexpr auto kCanadaData = "../data/canada.json";
+constexpr auto kDeviceList = "../data/device_list.json";
 
 void mem_usage(double &vm_usage, double &resident_set) {
   using namespace std;
@@ -58,6 +60,46 @@ void parse_json_file(const std::string &path) {
   }
 }
 
+void parse_device_list(const std::string &path) {
+  // open file
+  std::ifstream file(path.c_str());
+
+  if (file.is_open()) {
+    // parse json with file
+    rapidjson::Document document;
+    rapidjson::IStreamWrapper stream{file};
+
+    // parse stream
+    document.ParseStream(stream);
+
+    // check home id
+    if (document.HasMember("home_id")) {
+      // print home id
+      std::cout << "Home id = " << document["home_id"].GetString() << std::endl;
+    }
+
+    // check data
+    if (document.HasMember("data")) {
+      // get data
+      auto data = document["data"].GetObject();
+
+      // check device list
+      if (data.HasMember("device_list") && data["device_list"].IsArray()) {
+
+        // print device count
+        std::cout << "Total device = " << data["device_list"].Size()
+                  << std::endl;
+      }
+    }
+
+    rapidjson::StringBuffer sb;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+    document.Accept(writer);
+
+    std::cout << sb.GetString() << std::endl;
+  }
+}
+
 // main function
 int main() {
   size_t count = 5;
@@ -78,7 +120,8 @@ int main() {
     std::cout << "Start to run with rapidjson v1.1.0" << std::endl;
 
     // parse json with file
-    parse_json_file(kCanadaData);
+    // parse_json_file(kCanadaData);
+    parse_device_list(kDeviceList);
 
     // read mem
     mem_usage(vm, rss);

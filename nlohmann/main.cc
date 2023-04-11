@@ -5,10 +5,12 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
+// #include <map>
 #include <string>
 
 // define data
 constexpr auto kCanadaData = "../data/canada.json";
+constexpr auto kDeviceList = "../data/device_list.json";
 
 void mem_usage(double &vm_usage, double &resident_set) {
   using namespace std;
@@ -54,6 +56,35 @@ void parse_json_file(const std::string &path) {
   }
 }
 
+void parse_device_list(const std::string &path) {
+  // open file
+  std::ifstream file(path.c_str());
+
+  if (file.is_open()) {
+    // init attributes
+    // std::map<std::string, nlohmann::json> attributes;
+
+    // parse json with file
+    auto json = nlohmann::json::parse(file);
+
+    // check home id
+    if (json["home_id"].is_string()) {
+      // print type
+      std::cout << "Home id = " << json["home_id"].get<std::string>()
+                << std::endl;
+    }
+
+    // check device list
+    if (json["data"]["device_list"].is_array()) {
+      // print type
+      std::cout << "Total device = " << json["data"]["device_list"].size()
+                << std::endl;
+    }
+
+    std::cout << json << std::endl;
+  }
+}
+
 // main function
 int main() {
   size_t count = 5;
@@ -74,7 +105,8 @@ int main() {
     std::cout << "Start to run with nlohmann v3.9.1" << std::endl;
 
     // parse json with file
-    parse_json_file(kCanadaData);
+    // parse_json_file(kCanadaData);
+    parse_device_list(kDeviceList);
 
     // read mem
     mem_usage(vm, rss);
