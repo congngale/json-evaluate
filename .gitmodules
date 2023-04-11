@@ -7,3 +7,6 @@
 [submodule "taocpp/json"]
 	path = taocpp/json
 	url = https://github.com/taocpp/json.git
+[submodule "nlohmann/json"]
+	path = nlohmann/json
+	url = https://github.com/nlohmann/json.git

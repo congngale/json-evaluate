@@ -1,3 +1,4 @@
+#include <nlohmann/json.hpp>
 #include <unistd.h>
 
 #include <chrono>
@@ -5,7 +6,6 @@
 #include <ios>
 #include <iostream>
 #include <string>
-#include <tao/json.hpp>
 
 // define data
 constexpr auto kCanadaData = "../data/canada.json";
@@ -28,9 +28,8 @@ void mem_usage(double &vm_usage, double &resident_set) {
   stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr >>
       tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >>
       stime >> cutime >> cstime >> priority >> nice >> O >> itrealvalue >>
-      starttime >> vsize >> rss; // don't care about the rest
-
-  stat_stream.close();
+      starttime >> vsize >>
+      rss; // don't care about the rest stat_stream.close();
 
   long page_size_kb =
       sysconf(_SC_PAGE_SIZE) / 1024; // for x86-64 is configured  to use 2MB
@@ -39,10 +38,20 @@ void mem_usage(double &vm_usage, double &resident_set) {
 }
 
 void parse_json_file(const std::string &path) {
-  // parse file
-  auto value = tao::json::parse_file(path);
+  // open file
+  std::ifstream file(path.c_str());
 
-  std::cout << "Data type = " << value.at("type").get_string() << std::endl;
+  if (file.is_open()) {
+    // parse json with file
+    auto json = nlohmann::json::parse(file);
+
+    // check type
+    if (json["type"].is_string()) {
+      // print type
+      std::cout << "Data type = " << json["type"].get<std::string>()
+                << std::endl;
+    }
+  }
 }
 
 // main function
@@ -62,7 +71,7 @@ int main() {
     std::cout << "#######################################" << std::endl;
 
     // print version
-    std::cout << "Start to run with taocpp version 1.0.0-beta.11 " << std::endl;
+    std::cout << "Start to run with nlohmann v3.9.1" << std::endl;
 
     // parse json with file
     parse_json_file(kCanadaData);

@@ -11,12 +11,12 @@
 // define data
 constexpr auto kCanadaData = "../data/canada.json";
 
-void mem_usage(double& vm_usage, double& resident_set) {
+void mem_usage(double &vm_usage, double &resident_set) {
   using namespace std;
   vm_usage = 0.0;
   resident_set = 0.0;
   ifstream stat_stream("/proc/self/stat",
-                       ios_base::in);  // get info from proc directory
+                       ios_base::in); // get info from proc directory
 
   // create some variables to get info
   string pid, comm, state, ppid, pgrp, session, tty_nr;
@@ -30,32 +30,19 @@ void mem_usage(double& vm_usage, double& resident_set) {
       tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >>
       stime >> cutime >> cstime >> priority >> nice >> O >> itrealvalue >>
       starttime >> vsize >>
-      rss;  // don't care about the rest stat_stream.close();
+      rss; // don't care about the rest stat_stream.close();
 
   long page_size_kb =
-      sysconf(_SC_PAGE_SIZE) / 1024;  // for x86-64 is configured  to use 2MB
-                                      // pages vm_usage = vsize / 1024.0;
+      sysconf(_SC_PAGE_SIZE) / 1024; // for x86-64 is configured  to use 2MB
+                                     // pages vm_usage = vsize / 1024.0;
   resident_set = rss * page_size_kb;
 }
 
-// main function
-int main() {
-  while (true) {
-    // init data
-    double vm, rss;
+void parse_json_file(const std::string &path) {
+  // open file
+  std::ifstream file(path.c_str());
 
-    // start time
-    auto t1 = std::chrono::high_resolution_clock::now();
-
-    // print version
-    std::cout << "Start to run with rapidjson master " << std::endl;
-
-    std::ifstream file(kCanadaData);
-
-    if (!file.is_open()) {
-      return 0;
-    }
-
+  if (file.is_open()) {
     // parse json with file
     rapidjson::Document document;
     rapidjson::IStreamWrapper stream{file};
@@ -68,19 +55,41 @@ int main() {
       // print type
       std::cout << "Data type = " << document["type"].GetString() << std::endl;
     }
+  }
+}
+
+// main function
+int main() {
+  size_t count = 5;
+
+  while (count > 0) {
+    // down
+    count--;
+
+    // init data
+    double vm, rss;
+
+    // start time
+    auto start = std::chrono::high_resolution_clock::now();
+
+    std::cout << "#######################################" << std::endl;
+
+    // print version
+    std::cout << "Start to run with rapidjson v1.1.0" << std::endl;
+
+    // parse json with file
+    parse_json_file(kCanadaData);
 
     // read mem
     mem_usage(vm, rss);
 
-    // end time
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    // convert to duration
-    std::chrono::duration<double, std::milli> time = t2 - t1;
+    // get duration
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::high_resolution_clock::now() - start);
 
     std::cout << "Virtual Memory: " << vm << std::endl;
     std::cout << "Resident set size: " << rss << std::endl;
-    std::cout << "Process run time: " << time.count() << "ms" << std::endl;
+    std::cout << "Process run time: " << duration.count() << "ms" << std::endl;
 
     // sleep
     sleep(1);
